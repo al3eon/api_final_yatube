@@ -13,12 +13,14 @@ from api.serializers import (
     GroupSerializer,
     PostSerializer,
 )
-from posts.models import Comment, Follow, Group, Post
+from posts.models import Follow, Group, Post
 
 
-class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
-                          viewsets.GenericViewSet):
-    pass
+class CreateListViewSet(mixins.CreateModelMixin,
+                        mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Базовый ViewSet с поддержкой:
+    - создания объектов (POST)
+    - получения списка объектов (GET)"""
 
 
 class AuthorPermissionViewSet(viewsets.ModelViewSet):
