@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 User = get_user_model()
+TEXT_PREVIEW_LENGTH = 50
 
 
 class Group(models.Model):
@@ -14,8 +15,6 @@ class Group(models.Model):
 
 
 class Post(models.Model):
-    TEXT_PREVIEW_LENGTH = 50
-
     text = models.TextField()
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
@@ -46,3 +45,8 @@ class Follow(models.Model):
         User, on_delete=models.CASCADE, related_name='followers')
     following = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='followings')
+
+    # class Meta:
+    #     constraints = [
+    #         models.UniqueConstraint('user', 'following')
+    #     ]

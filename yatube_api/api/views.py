@@ -1,21 +1,24 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, viewsets
+from rest_framework import filters, viewsets, mixins
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAuthenticatedOrReadOnly
 )
 
-from .permissions import IsAuthorOrReadOnly
-# А импорты из другого приложения нужно отделять?
-# И с вопросами как удобнее, в личку или так?
-from posts.models import Comment, Follow, Group, Post
-from .serializers import (
+from api.permissions import IsAuthorOrReadOnly
+from api.serializers import (
     CommentSerializer,
     FollowSerializer,
     GroupSerializer,
     PostSerializer,
 )
+from posts.models import Comment, Follow, Group, Post
+
+
+class CreateListViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                          viewsets.GenericViewSet):
+    pass
 
 
 class AuthorPermissionViewSet(viewsets.ModelViewSet):
@@ -41,9 +44,6 @@ class CommentViewSet(AuthorPermissionViewSet):
 
     Разрешает редактирование и удаление только автору комментария."""
 
-    # Я так понял, из-за переопределения метода get_queryset
-    # его можно тут не указывать. Можно ли его отсюда убрать?
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
     def get_post(self):
@@ -67,7 +67,7 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = GroupSerializer
 
 
-class FollowViewSet(viewsets.ModelViewSet):
+class FollowViewSet(CreateListViewSet):
     """ViewSet для управления подписками пользователя."""
 
     queryset = Follow.objects.all()
@@ -78,7 +78,7 @@ class FollowViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Возвращает только подписки текущего пользователя."""
-        return self.queryset.filter(user=self.request.user)
+        return self.request.user.followers.all()
 
     def perform_create(self, serializer):
         """Создаёт подписку с привязкой к текущему пользователю."""
