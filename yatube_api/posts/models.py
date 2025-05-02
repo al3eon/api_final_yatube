@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.db.models import Q, F
 
 User = get_user_model()
 TEXT_PREVIEW_LENGTH = 50
@@ -46,7 +47,14 @@ class Follow(models.Model):
     following = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='followings')
 
-    # class Meta:
-    #     constraints = [
-    #         models.UniqueConstraint('user', 'following')
-    #     ]
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_follow',
+                fields=['user', 'following'],
+            ),
+            models.CheckConstraint(
+                name='prevent_self_follow',
+                check=~Q(user=F('following')),
+            )
+        ]
