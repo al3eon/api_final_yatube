@@ -41,3 +41,6 @@ python3 manage.py runserver
 После запуска проекта документация будет доступна по адресу:
 
 http://127.0.0.1:8000/redoc/ (Redoc)
+
+## Автор
+[al3eon](https://github.com/al3eon) - разработчик проекта
